@@ -1,3 +1,12 @@
+MIT License + one addendum :
+
+This project use the community license of the Syncfusion library, for which:
+- Community Licenss is non-transferable under any and all circumstances.
+- Customer shall not distribute any Syncfusion binaries as part of an open-source project.
+- Any person or entity obtaining any Syncfusion code, licensed assemblies, or dependencies as a result of the Open Source Project must obtain their own licensed copy of the Licensed Product from Syncfusion.
+
+---
+
 MIT License
 
 Copyright (c) 2023 Sébastien Mathieu
@@ -19,3 +28,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
