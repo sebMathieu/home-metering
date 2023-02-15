@@ -1,0 +1,2 @@
+The data collected in this program are only collected via user interacts.
+No data are shared by the program and they are all stored on the user device.
