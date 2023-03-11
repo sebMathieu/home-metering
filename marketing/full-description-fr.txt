@@ -1,0 +1,7 @@
+Évitez les surprises ! 
+- Une fuite d'eau non-détectée sur quelques mois peut vous couter des milliers d'euros. 
+- Une facture d'électricité qui double à cause d'un nouvel appareil à la maison.
+
+La solution est simple : relevez vos compteurs régulièrement. Pour cela, vous avez besoin d'une application qui vous permet d'encoder facilement ces relevés et qui calcule automatiquement les consommations qui correspondent. "Home metering" permet d'encoder les relevés de plusieurs compteurs différents (eau, gaz, électricité, mazout, ...) et de visualiser la consommation journalière, hebdomadaire ou mensuelle. Grâce au prix unitaire, il permet de calculer le cout total et ainsi permettre d'anticiper vos factures.
+Si après avoir encodé un relevé de compteur, la consommation correspondante est anormale, le logiciel vous prévient. 
+Vous pouvez importer votre historique de consommation grâce à des fichiers CSV et exportez vos données à tout moment.

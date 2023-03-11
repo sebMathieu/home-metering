@@ -1,0 +1,7 @@
+Avoid surprises! 
+- An undetected water leak over a few months can cost you thousands of euros. 
+- An electricity bill that doubles because of a new appliance at home.
+
+The solution is simple: read your meters regularly. To do this, you need an application that allows you to encode these readings easily and that automatically calculates the corresponding consumption. "Home metering" allows you to encode the readings of several different meters (water, gas, electricity, oil, ...) and to visualize the daily, weekly or monthly consumption. Thanks to the unit price, it allows to calculate the total cost and thus to anticipate your bills.
+If after having encoded a meter reading, the corresponding consumption is abnormal, the software warns you. 
+You can import your consumption history through CSV files and export your data at any time.
