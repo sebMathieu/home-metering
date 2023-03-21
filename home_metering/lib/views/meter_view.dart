@@ -15,6 +15,11 @@ import 'package:home_metering/widgets/no_meter_widget.dart';
 import '../model/meter.dart';
 import '../utils/dialogs.dart';
 
+
+Future<List<Meter>> retrieveEmptyMeterList() async {
+  return [];
+}
+
 class MeterView extends StatefulWidget {
   const MeterView({this.initialMeterId, super.key});
 
@@ -109,7 +114,7 @@ class _MeterViewState extends State<MeterView>
 
   void _clearFetchedMeters() {
     setState(() {
-      _futureMeters = (() async => []) as Future<List<Meter>>;
+      _futureMeters = retrieveEmptyMeterList();
     });
   }
 

@@ -25,6 +25,7 @@ Future<MeterReading> registerMeterReading(MeterReading meterReading) async {
     convertMeterReadingToMap(meterReading),
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
+
   changeMeterReadingsState();
 
   return meterReading;
@@ -102,14 +103,14 @@ Future<void> deleteMeterReading(MeterReading meterReading) async {
   changeMeterReadingsState();
 }
 
-Future<MeterReading> updateMeterReading(MeterReading meterReading) async {
+Future<MeterReading> updateMeterReading(MeterReading meterReading, DateTime previousDateTime) async {
   var db = getDatabase();
 
-  await db.update(
+  var response = await db.update(
     meterReadingTableName,
     convertMeterReadingToMap(meterReading),
     conflictAlgorithm: ConflictAlgorithm.replace,
-    where: 'meterId = ? AND timestamp = ?', whereArgs: [meterReading.meterId, meterReading.dateTime.millisecondsSinceEpoch]
+    where: 'meterId = ? AND timestamp = ?', whereArgs: [meterReading.meterId, previousDateTime.millisecondsSinceEpoch]
   );
 
   changeMeterReadingsState();

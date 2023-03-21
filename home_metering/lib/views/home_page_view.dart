@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_metering/controller/meter_controller.dart';
-import 'package:home_metering/controller/meter_reading_controller.dart';
 import 'package:home_metering/utils/dialogs.dart';
-import 'package:home_metering/utils/metering.dart';
 import 'package:home_metering/utils/widgets.dart';
 import 'package:home_metering/views/edit_meter_reading_view.dart';
 import 'package:home_metering/views/edit_meter_view.dart';
@@ -24,6 +22,7 @@ class _HomePageViewState extends State<HomePageView> {
         builder: (context) => const MeterView(),
       ),
     );
+    setState(() {});
   }
 
   void _navigateToAddMeter() async {
@@ -53,6 +52,7 @@ class _HomePageViewState extends State<HomePageView> {
         builder: (context) => const SettingsView(),
       ),
     );
+    setState(() {});
   }
 
   void _importMeterReadingsFromCSV(BuildContext context) async {

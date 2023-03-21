@@ -29,7 +29,9 @@ class _EditMeterReadingViewState extends State<EditMeterReadingView> {
     if (widget.initialMeterReading != null) {
       meterReading = copyMeterReading(widget.initialMeterReading!);
     } else {
-      meterReading = MeterReading(meterId: widget.initialMeter?.id ?? widget.meters[0].id ?? 0, dateTime: DateTime.now(), value: -1);
+      var meterId = widget.initialMeter?.id ?? 0;
+      if (meterId == 0 && widget.meters.isNotEmpty) meterId = widget.meters[0].id ?? 0;
+      meterReading = MeterReading(meterId: meterId, dateTime: DateTime.now(), value: -1);
     }
   }
 
@@ -51,7 +53,7 @@ class _EditMeterReadingViewState extends State<EditMeterReadingView> {
     }
     if (!_isFormValid()) return;
     _formKey.currentState!.save();
-    await updateMeterReading(meterReading);
+    await updateMeterReading(meterReading, widget.initialMeterReading!.dateTime);
     if (!mounted) return;
     Navigator.of(context).pop();
   }
