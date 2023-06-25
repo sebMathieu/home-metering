@@ -37,3 +37,4 @@ storeFile=C:\\programs\\android-keystore.jks
 flutter clean
 flutter build appbundle
 ```
+Upload the generated bundle as a *new realease* to [Google play console](https://play.google.com/console).

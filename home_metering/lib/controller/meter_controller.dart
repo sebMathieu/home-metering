@@ -88,7 +88,7 @@ Meter convertMapToMeter(Map<String, dynamic> m) {
     unitCost: m['unitCost'],
     isDecreasing: m['isDecreasing'] > 0,
     decimals: m['decimals'],
-    serialNumber: m['description'],
+    serialNumber: m['serialNumber'],
     description: m['description'],
     color: m['color'],
   );
