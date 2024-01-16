@@ -44,7 +44,7 @@ Future<bool> importMeterReadingFromCSVImportDialog(BuildContext context, {Meter?
   final result = await FilePicker.platform.pickFiles(
     allowMultiple: false,
     type: FileType.custom,
-    allowedExtensions: ["csv"],
+    allowedExtensions: ["csv", "txt"],
     withData: true,
   );
 

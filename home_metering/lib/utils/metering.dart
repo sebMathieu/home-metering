@@ -178,11 +178,11 @@ List<MeterReading> parseMeterReadingsFromCSVString(String rawCSV,
     }
 
     final isReset =
-        csvLine.length >= 4 && (csvLine[3] == 1 || csvLine[3] == "1");
+        csvLine.length >= 5 && (csvLine[4] == 1 || csvLine[4] == "1");
 
     Meter? meter = preferredMeter;
-    if (csvLine.length >= 5 && csvLine[4] != null && csvLine[4].trim() != "") {
-      final lowerMeterName = csvLine[4].trim().toLowerCase();
+    if (csvLine.length >= 4 && csvLine[3] != null && csvLine[3].trim() != "") {
+      final lowerMeterName = csvLine[3].trim().toLowerCase();
       print("meter name \"$lowerMeterName\" from line ${csvLine} among ${meterByName?.keys} ?");
       if (preferredMeter != null && lowerMeterName == preferredMeter.name.toLowerCase()) {
       } // Already set to preferred meter
