@@ -78,7 +78,7 @@ class _EditMeterViewState extends State<EditMeterView> {
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor ?? widget.defaultColor,
-            onColorChanged: (value) => setState(() => {pickerColor = value}),
+            onColorChanged: (value) => setState(() => pickerColor = value),
             colorHistory: const [defaultMeterColor, Colors.pink, Colors.blue, Colors.green, Colors.orange, Colors.deepOrange, Colors.purple, Colors.deepPurple],
           ),
         ),

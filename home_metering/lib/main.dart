@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
-        primarySwatch: Colors.amber,
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.amber, primary: Colors.amber),
       ),
       home: const HomePageView(),
     );

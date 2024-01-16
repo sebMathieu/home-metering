@@ -1,5 +1,7 @@
 # home_metering
 
+Don't forget to export your data before trying a debug version on your phone.
+
 ## Update icon & name
 
 Icon can be updated by changing `/assets/app-logo-256.png` and running

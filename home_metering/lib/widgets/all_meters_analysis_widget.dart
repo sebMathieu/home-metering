@@ -249,7 +249,7 @@ class _AllMetersAnalysisWidgetState extends State<AllMetersAnalysisWidget> {
   Widget _buildMetersNavigation(BuildContext context,
       AllMetersAnalysisComputation allMetersAnalysisComputation) {
     if (allMetersAnalysisComputation.meters.isEmpty) {
-      return Column(children: const [
+      return const Column(children: [
         SizedBox(
           height: defaultMargin,
         ),

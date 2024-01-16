@@ -4,7 +4,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
-version: 1.0.3+20230321
+version: 1.0.4+20240116
 
 environment:
   sdk: '>=2.18.4 <3.0.0'
@@ -17,19 +17,20 @@ dependencies:
   sqflite:
   path:
   syncfusion_flutter_charts:
-  flutter_launcher_icons: "^0.11.0"
+  flutter_launcher_icons: ^0.13.1
   cupertino_icons: ^1.0.2
   intl:
-  share_plus: "4.5.3"
+  share_plus: ^7.2.1
   file_picker:
   csv:
   flutter_colorpicker: ^1.0.3
+  cross_file: ^0.3.3
 
 dev_dependencies:
   test:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 
 # Flutter package parameters.

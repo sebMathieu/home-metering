@@ -106,7 +106,7 @@ Future<void> deleteMeterReading(MeterReading meterReading) async {
 Future<MeterReading> updateMeterReading(MeterReading meterReading, DateTime previousDateTime) async {
   var db = getDatabase();
 
-  var response = await db.update(
+  await db.update(
     meterReadingTableName,
     convertMeterReadingToMap(meterReading),
     conflictAlgorithm: ConflictAlgorithm.replace,
