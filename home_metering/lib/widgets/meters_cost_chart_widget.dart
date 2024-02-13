@@ -32,7 +32,7 @@ class MetersCostChartWidget extends StatelessWidget {
           title: AxisTitle(
               text:
                   "[${settings.currencyUnit}/${getFrequencyUnitTranslation(frequency, translator)}]")),
-      legend: Legend(isVisible: true, position: LegendPosition.top),
+      legend: const Legend(isVisible: true, position: LegendPosition.top),
       series: meters.map((meter) {
         final consumptionDateTimeBuckets = consumptionsByMeterId[meter.id!]!;
         return StackedColumnSeries<MapEntry<DateTime, num>, DateTime>(

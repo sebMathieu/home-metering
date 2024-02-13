@@ -185,23 +185,16 @@ class _EditMeterViewState extends State<EditMeterView> {
               ],
             ),
             const SizedBox(height: 18),
-            Row(
-              children: [
-                Transform.scale(
-                    scale: 1.1,
-                    child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Checkbox(
-                            value: meter.isDecreasing,
-                            onChanged: (value) {
-                              setState(() {
-                                meter.isDecreasing = (value == true);
-                              });
-                            }))),
-                const SizedBox(width: 6),
-                Text(translator.isDecreasing)
-              ],
+            CheckboxListTile(
+                value: meter.isDecreasing,
+                onChanged: (value) {
+                  setState(() {
+                    meter.isDecreasing = (value == true);
+                  });
+                },
+              title: Text(translator.isDecreasing),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
             ),
             ViewSubtitleWidget(translator.display, marginTop: defaultViewPadding*2, marginBottom: defaultMargin / 2,),
             Row(
@@ -247,8 +240,8 @@ class _EditMeterViewState extends State<EditMeterView> {
   ButtonStyleButton _buildActionButton(BuildContext context) {
     final translator = getTranslator(context);
     return ElevatedButton.icon(
-      icon: Icon(meter.id != null ? Icons.edit : Icons.add, size: 18),
-      label: Text(meter.id != null ? translator.update : translator.add),
+      icon: Icon(meter.id != null ? Icons.edit : Icons.check, size: 18),
+      label: Text(meter.id != null ? translator.update : translator.confirm),
       onPressed: () {
         meter.id != null ? _updateMeter(context) : _addMeter(context);
       },

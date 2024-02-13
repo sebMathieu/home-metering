@@ -183,7 +183,7 @@ List<MeterReading> parseMeterReadingsFromCSVString(String rawCSV,
     Meter? meter = preferredMeter;
     if (csvLine.length >= 4 && csvLine[3] != null && csvLine[3].trim() != "") {
       final lowerMeterName = csvLine[3].trim().toLowerCase();
-      print("meter name \"$lowerMeterName\" from line ${csvLine} among ${meterByName?.keys} ?");
+      print("meter name \"$lowerMeterName\" from line $csvLine among ${meterByName?.keys} ?");
       if (preferredMeter != null && lowerMeterName == preferredMeter.name.toLowerCase()) {
       } // Already set to preferred meter
       else if (meterByName == null) {
