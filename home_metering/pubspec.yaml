@@ -4,7 +4,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
-version: 1.0.6+20240213
+version: 1.0.7+20240324
 
 environment:
   sdk: '>=2.18.4 <3.0.0'

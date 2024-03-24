@@ -255,8 +255,7 @@ class MeterReadingState {
   }
 }
 
-Future<MeterReadingState?> computeLastMeterReadingState(meter,
-    {double madFactor = 3.0}) async {
+Future<MeterReadingState?> computeLastMeterReadingState(meter) async {
   final now = DateTime.now();
   final dateRange = DateRange(now.add(const Duration(days: -365)), now);
   const frequency = Frequency.daily;
@@ -280,11 +279,11 @@ Future<MeterReadingState?> computeLastMeterReadingState(meter,
 
   // Compute range
   final medianConsumption = computeMedian(consumptions.values);
-  final mad = 1.482 *
-      computeMedian(
-          consumptions.values.map((v) => (v - medianConsumption).abs()));
-  final tolerance =
-      max(mad * madFactor, medianConsumption.abs() * 0.1); // 10% is ok
+  final absoluteDeviations = consumptions.values.map((v) => (v - medianConsumption).abs());
+  final tolerance = max(
+      computePercentile(absoluteDeviations, 95), // take 95% of the deviation as "normal"
+      medianConsumption.abs() * 0.1 // 10% is ok
+  );
 
   // Check value
   final lastConsumption = consumptions.values.toList()[consumptions.length - 2];
