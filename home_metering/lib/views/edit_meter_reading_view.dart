@@ -119,7 +119,7 @@ class _EditMeterReadingViewState extends State<EditMeterReadingView> {
               initialValue: timeOfDayFormatter.format(meterReading.dateTime),
               validator: (v) => validateRequiredDateTime(
                   v, formatter: timeOfDayFormatter, translator),
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.datetime,
               onSaved: (value) {
                 meterReading.dateTime = timeOfDayFormatter.parseLoose(value!);
               },
