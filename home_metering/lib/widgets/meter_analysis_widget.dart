@@ -174,6 +174,7 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
     final settings = getSettings();
     final currencyFormatter = NumberFormat.currency(symbol: '');
     final frequencyUnitTranslation = getFrequencyUnitTranslation(frequency, translator);
+
     return Scrollbar(
         child: Padding(
             padding: const EdgeInsets.all(defaultViewPadding),
@@ -355,51 +356,6 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
       );
 
       return kpiWidget;
-      /*
-      return Tooltip(
-        richMessage: TextSpan(
-          text: '', // Empty to keep base style
-          children: <InlineSpan>[
-            TextSpan(
-                text: "${translator.analysisPeriod} : 365 ${translator.days}",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const TextSpan(
-              text: "\n",
-              style: TextStyle(fontSize: 2),
-            ),
-            TextSpan(
-                text: "\n${translator.expectedConsumption} : ",
-                children: [
-                  TextSpan(
-                      text: "${numberFormatter.format(lastMeterReadingState
-                          .expectedConsumption)} ± ${numberFormatter.format(
-                          lastMeterReadingState
-                              .expectedTolerance)} ${lastMeterReadingState.meter
-                          .unit}/$translatedFrequency",
-                      style: tooltipValueTextStyle
-                  ),
-                ]),
-            TextSpan(
-                text: '\n${translator.currentConsumption} : ',
-                children: [
-                  TextSpan(
-                    text: "${numberFormatter.format(
-                        lastMeterReadingState
-                            .consumption)} ${lastMeterReadingState
-                        .meter.unit}/$translatedFrequency",
-                    style: tooltipValueTextStyle,
-                  ),
-                ]
-            ),
-
-          ],
-        ),
-        triggerMode: TooltipTriggerMode.tap,
-        showDuration: const Duration(seconds: 30),
-        child: kpiWidget,
-      );
-      */
     }
   }
 }
