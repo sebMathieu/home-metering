@@ -219,6 +219,21 @@ class _EditMeterViewState extends State<EditMeterView> {
                     style: TextStyle(color: pickerColor ?? widget.defaultColor))
               ],
             ),
+            Row(
+              children: [
+                  Flexible(
+                      flex: 3,
+                      child: TextFormField(
+                          initialValue: meter.monitoringIndexThreshold?.toString(),
+                          validator: (value) => validateFloat(value, translator),
+                          keyboardType: TextInputType.number,
+                          onSaved: (value) =>
+                          meter.monitoringIndexThreshold = num.tryParse(value ?? ''),
+                          decoration: InputDecoration(
+                          labelText: "${translator.monitoringIndexThreshold} *",
+                  ))),
+              ],
+            ),
             ViewSubtitleWidget(translator.other, marginTop: defaultViewPadding*2, marginBottom: defaultMargin / 2,),
             TextFormField(
                 initialValue: meter.serialNumber,

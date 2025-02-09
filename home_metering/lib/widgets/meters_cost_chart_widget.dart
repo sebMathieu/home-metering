@@ -9,7 +9,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 class MetersCostChartWidget extends StatelessWidget {
   final List<Meter> meters;
-  final Map<int, LinkedHashMap<DateTime, num>> consumptionsByMeterId;
+  final Map<int, LinkedHashMap<DateTime, num?>> consumptionsByMeterId;
   final Frequency frequency;
   final DateRange? dateRange;
 
@@ -35,14 +35,14 @@ class MetersCostChartWidget extends StatelessWidget {
       legend: const Legend(isVisible: true, position: LegendPosition.top),
       series: meters.map((meter) {
         final consumptionDateTimeBuckets = consumptionsByMeterId[meter.id!]!;
-        return StackedColumnSeries<MapEntry<DateTime, num>, DateTime>(
+        return StackedColumnSeries<MapEntry<DateTime, num?>, DateTime>(
             // Bind data source
             dataSource: consumptionDateTimeBuckets.entries.toList(),
             color: meter.getColorObject(),
             name: meter.name,
-            xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-            yValueMapper: (MapEntry<DateTime, num> entry, _) =>
-                entry.value * meter.unitCost);
+            xValueMapper: (MapEntry<DateTime, num?> entry, _) => entry.key,
+            yValueMapper: (MapEntry<DateTime, num?> entry, _) =>
+            (entry.value ?? 0.0) * meter.unitCost);
       }).toList(),
     );
   }

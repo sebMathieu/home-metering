@@ -1,19 +1,25 @@
 import 'dart:math';
 
-num computeAverage(Iterable<num> numbers) {
-  if (numbers.isEmpty) return 0;
-  return numbers.reduce((a, b) => a + b) / numbers.length;
+List<num> filterNulls(Iterable<num?> numbers) {
+  return numbers.whereType<num>().toList();
+}
+
+num? computeAverage(Iterable<num?> numbers) {
+  final nonNulls = filterNulls(numbers);
+  if (nonNulls.isEmpty) return null;
+  return nonNulls.reduce((a, b) => a + b) / nonNulls.length;
 }
 
 
-num computeMedian(Iterable<num> numbers) {
+num? computeMedian(Iterable<num?> numbers) {
   return computePercentile(numbers, 50);
 }
 
 
-num computePercentile(Iterable<num> numbers, num percentile) {
+num? computePercentile(Iterable<num?> numbers, num percentile) {
   // Sort
-  final sortedList = numbers.toList();
+  final sortedList = filterNulls(numbers).toList();
+  if (sortedList.isEmpty) return null;
   sortedList.sort();
 
   // Take the middle

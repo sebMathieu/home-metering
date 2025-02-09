@@ -19,6 +19,7 @@ class Meter {
   String? serialNumber;
   String? description;
   int? color;
+  num? monitoringIndexThreshold;
 
   Meter({
     this.id,
@@ -31,6 +32,7 @@ class Meter {
     this.description,
     this.isDecreasing = false,
     this.color,
+    this.monitoringIndexThreshold,
   });
 
   Color getColorObject() {

@@ -84,7 +84,6 @@ class _SettingsViewState extends State<SettingsView> {
         key: _formKey,
         child: Column(
           children: [
-            // TODO language & translations
             TextFormField(
                 initialValue: settings.currencyUnit,
                 onChanged: (value) => settings.currencyUnit = value.trim(),

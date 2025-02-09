@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:home_metering/controller/migrations/migration_2023_02_05_db_setup.dart';
+import 'package:home_metering/controller/migrations/migration_2025_02_08_meter_limit.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -22,7 +23,7 @@ Future<void> initializeDatabase() async {
   // Get the database connection
   _database = await openDatabase(
     join(databaseContainerFolder, 'home-metering.db'),
-    version: 20230205,
+    version: 20250208,
     onCreate: (db, version) async {
       var batch = db.batch();
       upgrade20230205(batch);
@@ -34,6 +35,9 @@ Future<void> initializeDatabase() async {
       // Register useful migrations
       if (oldVersion < 20230205) {
         upgrade20230205(batch);
+      }
+      if (oldVersion < 20250208) {
+        upgrade20250208(batch);
       }
 
       // Execute the migrations

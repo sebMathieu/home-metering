@@ -32,8 +32,8 @@ class AllMetersAnalysisComputation {
   List<Meter> meters;
   Frequency frequency;
   DateRange dateRange;
-  Map<int, LinkedHashMap<DateTime, num>> consumptionsByMeterId;
-  num averageCost;
+  Map<int, LinkedHashMap<DateTime, num?>> consumptionsByMeterId;
+  num? averageCost;
   MeterReading? lastMeterReading;
   Map<int, MeterReadingState>? lastMeterReadingStateByMeterId;
 
@@ -45,7 +45,7 @@ class AllMetersAnalysisComputation {
       Frequency frequency, DateRange dateRange) async {
     // Retrieve
     List<Meter> meters = await retrieveMeters();
-    Map<int, LinkedHashMap<DateTime, num>> consumptionsByMeterId = {};
+    Map<int, LinkedHashMap<DateTime, num?>> consumptionsByMeterId = {};
     for (final meter in meters) {
       final meterReadings = await retrieveMeterReadings(
           meterId: meter.id!,
@@ -198,7 +198,7 @@ class _AllMetersAnalysisWidgetState extends State<AllMetersAnalysisWidget> {
                       value != null ? _updateFrequency(value) : {},
                   items: Frequency.values.map<DropdownMenuItem<Frequency>>((f) {
                     return DropdownMenuItem<Frequency>(
-                        value: f, child: Text(getFrequencyTranslation(f, translator))); // TODO translate
+                        value: f, child: Text(getFrequencyTranslation(f, translator)));
                   }).toList(),
                 ),
               ),

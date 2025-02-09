@@ -71,6 +71,7 @@ Map<String, dynamic> convertMeterToMap(Meter meter, [bool? isSkipId]) {
     'serialNumber': meter.serialNumber,
     'description': meter.description,
     'color': meter.color,
+    'monitoringIndexThreshold': meter.monitoringIndexThreshold,
   };
 
   if (isSkipId != true && meter.id != null) {
@@ -91,6 +92,7 @@ Meter convertMapToMeter(Map<String, dynamic> m) {
     serialNumber: m['serialNumber'],
     description: m['description'],
     color: m['color'],
+    monitoringIndexThreshold: m['monitoringIndexThreshold']
   );
 }
 

@@ -13,18 +13,17 @@ import 'package:intl/intl.dart';
 // Scaling factor for ease of debugging and to not get a total per day too low (e.g. 10e-7)
 const _msPerDay = 24 * 3600 * 1000;
 
-LinkedHashMap<DateTime, num> computeConsumptionFromSortedMeterReadings(
+LinkedHashMap<DateTime, num?> computeConsumptionFromSortedMeterReadings(
     List<MeterReading> sortedMeterReadings, Meter meter, Frequency frequency,
     {DateRange? dateRange}) {
   // Create buckets container
-  LinkedHashMap<DateTime, num> consumptionBuckets =
-      LinkedHashMap<DateTime, num>();
+  LinkedHashMap<DateTime, num?> consumptionBuckets = LinkedHashMap<DateTime, num?>();
   if (sortedMeterReadings.isEmpty) return consumptionBuckets;
 
   // initialize buckets if date range provided
   if (dateRange != null) {
     for (final t in getDateTimeIteratorInRange(dateRange, frequency)) {
-      consumptionBuckets[t] = 0;
+      consumptionBuckets[t] = null;
     }
   }
 
@@ -211,27 +210,27 @@ List<MeterReading> parseMeterReadingsFromCSVString(String rawCSV,
   return newMeterReadings;
 }
 
-num computeAverageMeterConsumptionsCost(List<Meter> meters,
-    Map<int, LinkedHashMap<DateTime, num>> consumptionsByMeterId) {
-  var totalCostByDateTime = <DateTime, num>{};
+num? computeAverageMeterConsumptionsCost(List<Meter> meters,
+    Map<int, LinkedHashMap<DateTime, num?>> consumptionsByMeterId) {
+  var totalCostByDateTime = <DateTime, num?>{};
   for (final meter in meters) {
     final consumptions = consumptionsByMeterId[meter.id!]!;
     for (final consumptionEntry in consumptions.entries) {
       totalCostByDateTime[consumptionEntry.key] =
           (totalCostByDateTime[consumptionEntry.key] ?? 0.0) +
-              consumptionEntry.value * meter.unitCost;
+              (consumptionEntry.value ?? 0.0) * meter.unitCost;
     }
   }
-  return computeAverage(totalCostByDateTime.values.where((v) => v != 0.0));
+  return computeAverage(totalCostByDateTime.values);
 }
 
 class MeterReadingState {
   MeterReading reading;
   Meter meter;
   Frequency consumptionFrequency;
-  num consumption;
-  num expectedConsumption;
-  num expectedTolerance;
+  num? consumption;
+  num? expectedConsumption;
+  num? expectedTolerance;
 
   MeterReadingState(
       this.reading,
@@ -242,16 +241,17 @@ class MeterReadingState {
       this.expectedTolerance);
 
   num? relativeEvolution() {
-    if (expectedConsumption.abs() < 0.01) {
+    if (expectedConsumption == null || expectedConsumption!.abs() < 0.01) {
       return null;
     } else {
-      return (consumption - expectedConsumption) / expectedConsumption;
+      return (consumption! - expectedConsumption!) / expectedConsumption!;
     }
   }
 
   bool isOutlier() {
-    return consumption < expectedConsumption - expectedTolerance ||
-        consumption > expectedConsumption + expectedTolerance;
+    if (consumption == null || expectedConsumption == null) return false;
+    return consumption! < expectedConsumption! - expectedTolerance! ||
+        consumption! > expectedConsumption! + expectedTolerance!;
   }
 }
 
@@ -279,11 +279,18 @@ Future<MeterReadingState?> computeLastMeterReadingState(meter) async {
 
   // Compute range
   final medianConsumption = computeMedian(consumptions.values);
-  final absoluteDeviations = consumptions.values.map((v) => (v - medianConsumption).abs());
-  final tolerance = max(
-      computePercentile(absoluteDeviations, 95), // take 95% of the deviation as "normal"
-      medianConsumption.abs() * 0.1 // 10% is ok
-  );
+  final num? tolerance;
+  if (medianConsumption == null) {
+    tolerance = null;
+  } else {
+    final absoluteDeviations = filterNulls(consumptions.values).map((v) =>
+        (v - medianConsumption).abs());
+    tolerance = max(
+        computePercentile(absoluteDeviations, 95)!,
+        // take 95% of the deviation as "normal"
+        medianConsumption.abs() * 0.1 // 10% is ok
+    );
+  }
 
   // Check value
   final lastConsumption = consumptions.values.toList()[consumptions.length - 2];

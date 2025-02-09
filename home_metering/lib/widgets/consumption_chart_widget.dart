@@ -8,7 +8,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 class ConsumptionChartWidget extends StatelessWidget {
   final Meter meter;
-  final LinkedHashMap<DateTime, num> consumptionDateTimeBuckets;
+  final LinkedHashMap<DateTime, num?> consumptionDateTimeBuckets;
   final Frequency frequency;
   final DateRange? dateRange;
 
@@ -30,14 +30,14 @@ class ConsumptionChartWidget extends StatelessWidget {
             title: AxisTitle(
                 text:
                     "[${meter.unit}/${getFrequencyUnitTranslation(frequency, translator)}]")),
-        series: <ColumnSeries<MapEntry<DateTime, num>, DateTime>>[
-          ColumnSeries<MapEntry<DateTime, num>, DateTime>(
+        series: <ColumnSeries<MapEntry<DateTime, num?>, DateTime>>[
+          ColumnSeries<MapEntry<DateTime, num?>, DateTime>(
               // Bind data source
             name: meter.name,
               dataSource: consumptionDateTimeBuckets.entries.toList(),
               color: meter.getColorObject(),
-              xValueMapper: (MapEntry<DateTime, num> entry, _) => entry.key,
-              yValueMapper: (MapEntry<DateTime, num> entry, _) => entry.value)
+              xValueMapper: (MapEntry<DateTime, num?> entry, _) => entry.key,
+              yValueMapper: (MapEntry<DateTime, num?> entry, _) => entry.value)
         ]);
   }
 }

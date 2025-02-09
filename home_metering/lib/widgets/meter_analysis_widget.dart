@@ -21,11 +21,7 @@ class MeterAnalysisWidget extends StatefulWidget {
   final Meter meter;
 
   MeterAnalysisWidget(this.meter)
-      : super(
-      key: Key(
-          "MeterAnalysis-${meter
-              .id}-${getMeterReadingsState()}"));
-
+      : super(key: Key("MeterAnalysis-${meter.id}-${getMeterReadingsState()}"));
 
   @override
   State<MeterAnalysisWidget> createState() => _MeterAnalysisWidgetState();
@@ -33,41 +29,74 @@ class MeterAnalysisWidget extends StatefulWidget {
 
 class MeterAnalysisComputation {
   Meter meter;
-  LinkedHashMap<DateTime, num> consumptionDateTimeBuckets;
+  LinkedHashMap<DateTime, num?> consumptionDateTimeBuckets;
   Frequency frequency;
   DateRange dateRange;
-  num averageConsumption;
+  num? averageConsumption;
   MeterReading? lastMeterReading;
   MeterReadingState? lastMeterReadingState;
+  DateTime? predictedReachOfMonitoringIndexThresholdDateTime;
 
-  MeterAnalysisComputation(this.meter,
+  MeterAnalysisComputation(
+      this.meter,
       this.consumptionDateTimeBuckets,
       this.frequency,
       this.dateRange,
       this.averageConsumption,
       this.lastMeterReading,
-      this.lastMeterReadingState,);
+      this.lastMeterReadingState,
+      this.predictedReachOfMonitoringIndexThresholdDateTime);
 
-  static Future<MeterAnalysisComputation> fromDateRange(Meter meter,
-      Frequency frequency, DateRange dateRange) async {
+  bool checkIsForecastsAvailable() {
+    return predictedReachOfMonitoringIndexThresholdDateTime != null;
+  }
+
+  static Future<MeterAnalysisComputation> fromDateRange(
+      Meter meter, Frequency frequency, DateRange dateRange) async {
     List<MeterReading> sortedMeterReadings = await retrieveMeterReadings(
         meterId: meter.id!,
         dateRange: dateRange,
         isFirstsOutOfBoundReadingIncluded: true);
 
     final consumptionDateTimeBuckets =
-    computeConsumptionFromSortedMeterReadings(
-        sortedMeterReadings, meter, frequency,
-        dateRange: frequency != Frequency.yearly
-            ? dateRange
-            : null); // Do not force range for yearly values
+        computeConsumptionFromSortedMeterReadings(
+            sortedMeterReadings, meter, frequency,
+            dateRange: frequency != Frequency.yearly
+                ? dateRange
+                : null); // Do not force range for yearly values
 
-    final averageConsumption =
-    computeAverage(consumptionDateTimeBuckets.values);
+    final averageConsumption = computeAverage(consumptionDateTimeBuckets.values.where((v) => v != 0.0));
 
     // Last meter readings
     final lastMeterReading = await retrieveLastMeterReading(meterId: meter.id!);
     final lastMeterReadingState = await computeLastMeterReadingState(meter);
+
+    // Limit reach
+    DateTime? predictedLimitReachedDateTime;
+    if (meter.monitoringIndexThreshold != null && lastMeterReading != null && averageConsumption != null) {
+      final limit = meter.monitoringIndexThreshold!;
+      num remainingFrequencies = (limit - lastMeterReading.value) / averageConsumption;
+      if (meter.isDecreasing) remainingFrequencies = -remainingFrequencies;
+
+      final num remainingMinutes;
+      switch (frequency) {
+        case Frequency.daily:
+          remainingMinutes = remainingFrequencies * 24*60;
+          break;
+        case Frequency.weekly:
+          remainingMinutes = remainingFrequencies * 7*24*60;
+          break;
+        case Frequency.monthly:
+          remainingMinutes = remainingFrequencies * 30*24*60;
+          break;
+        case Frequency.yearly:
+          remainingMinutes = remainingFrequencies * 365*24*60;
+          break;
+        default:
+          throw Exception("Not implemented frequency in limit reach prediction");
+      }
+      predictedLimitReachedDateTime = lastMeterReading.dateTime.add(Duration(minutes: remainingMinutes.ceil()));
+    }
 
     return MeterAnalysisComputation(
         meter,
@@ -76,8 +105,8 @@ class MeterAnalysisComputation {
         dateRange,
         averageConsumption,
         lastMeterReading,
-        lastMeterReadingState
-    );
+        lastMeterReadingState,
+        predictedLimitReachedDateTime);
   }
 }
 
@@ -165,16 +194,84 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
         });
   }
 
-  Widget _buildAnalysisWidget(BuildContext context,
-      MeterAnalysisComputation meterAnalysisComputation) {
+  Widget _buildAnalysisWidget(
+    BuildContext context, MeterAnalysisComputation meterAnalysisComputation) {
     final theme = Theme.of(context);
     final translator = getTranslator(context);
     final dateFormatter = DateFormat.yMd();
     final numberFormatter = NumberFormat("##0.0#");
     final settings = getSettings();
     final currencyFormatter = NumberFormat.currency(symbol: '');
-    final frequencyUnitTranslation = getFrequencyUnitTranslation(frequency, translator);
+    final frequencyUnitTranslation =
+        getFrequencyUnitTranslation(frequency, translator);
 
+    // Prepare base bottom sections
+    List<Widget> sections = [
+      ViewSubtitleWidget(translator.statistics),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          KPIWidget(
+              meterAnalysisComputation.averageConsumption == null ? '-' : "${numberFormatter.format(meterAnalysisComputation.averageConsumption)} ${meterAnalysisComputation.meter.unit}/$frequencyUnitTranslation",
+              iconData: Icons.shopping_cart,
+              label: translator.averageConsumption),
+          KPIWidget(
+              meterAnalysisComputation.averageConsumption == null ? '-' : "${currencyFormatter.format((meterAnalysisComputation.averageConsumption ?? 0.0) * meterAnalysisComputation.meter.unitCost)} ${settings.currencyUnit}/$frequencyUnitTranslation",
+              iconData: Icons.euro,
+              label: translator.averageCost)
+        ],
+      ),
+      ViewSubtitleWidget(
+        translator.lastReading,
+        marginTop: defaultViewPadding,
+      ),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        _buildLastMeterReadingTrendKPI(
+            meterAnalysisComputation.lastMeterReadingState, numberFormatter),
+        const SizedBox(
+          width: defaultViewPadding,
+        ),
+        KPIWidget(
+          "${meterAnalysisComputation.lastMeterReading != null ? daysSince(meterAnalysisComputation.lastMeterReading!.dateTime) : '-'} ${translator.days}",
+          iconData: Icons.watch_later_outlined,
+          label: translator.sinceLastReading,
+        ),
+      ]),
+    ];
+
+    // Forecasts
+    if (meterAnalysisComputation.checkIsForecastsAvailable()) {
+      sections.add(ViewSubtitleWidget(
+        translator.forecasts,
+        marginTop: defaultViewPadding,
+      ));
+      Row forecastsRow =
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: []);
+      sections.add(forecastsRow);
+      if (meterAnalysisComputation.predictedReachOfMonitoringIndexThresholdDateTime != null) {
+        final formattedDate = dateFormatter
+            .format(meterAnalysisComputation.predictedReachOfMonitoringIndexThresholdDateTime!);
+        final daysToLimit = meterAnalysisComputation.predictedReachOfMonitoringIndexThresholdDateTime!.difference(DateTime.now()).inDays;
+        final label = translator.expectedThresholdReach;
+        final tooltipMessage = TextSpan(text: numberFormatter.format(meterAnalysisComputation.meter.monitoringIndexThreshold));
+
+        final KPIWidget limitReachedKpi;
+        if (daysToLimit < 14) {
+          limitReachedKpi = KPIWidget.instantiateErrorKPI(formattedDate,
+              iconData: Icons.assignment_late, label: label, tooltipMessage: tooltipMessage);
+        } else if (daysToLimit < 30) {
+          limitReachedKpi = KPIWidget.instantiateWarningKPI(formattedDate,
+              iconData: Icons.assignment_late, label: label, tooltipMessage: tooltipMessage);
+        } else {
+          limitReachedKpi = KPIWidget(formattedDate,
+              iconData: Icons.assignment_late, label: label, tooltipMessage: tooltipMessage);
+        }
+
+        forecastsRow.children.add(limitReachedKpi);
+      }
+    }
+
+    // Build final view
     return Scrollbar(
         child: Padding(
             padding: const EdgeInsets.all(defaultViewPadding),
@@ -185,11 +282,12 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
                     value: frequency,
                     style: theme.textTheme.bodyMedium,
                     onChanged: (value) =>
-                    value != null ? _updateFrequency(value) : {},
+                        value != null ? _updateFrequency(value) : {},
                     items:
-                    Frequency.values.map<DropdownMenuItem<Frequency>>((f) {
+                        Frequency.values.map<DropdownMenuItem<Frequency>>((f) {
                       return DropdownMenuItem<Frequency>(
-                          value: f, child: Text(getFrequencyTranslation(f, translator)));
+                          value: f,
+                          child: Text(getFrequencyTranslation(f, translator)));
                     }).toList(),
                   )),
               ConsumptionChartWidget(
@@ -206,13 +304,11 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
                 ),
                 Expanded(
                     child: Text(
-                      "${dateFormatter.format(meterAnalysisComputation.dateRange
-                          .fromDateTime)} - ${dateFormatter.format(
-                          meterAnalysisComputation.dateRange.toDateTime)}",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: theme.textTheme.titleMedium?.fontSize),
-                    )),
+                  "${dateFormatter.format(meterAnalysisComputation.dateRange.fromDateTime)} - ${dateFormatter.format(meterAnalysisComputation.dateRange.toDateTime)}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: theme.textTheme.titleMedium?.fontSize),
+                )),
                 IconButton(
                   onPressed: _displayAfterRangeReadings,
                   icon: const Icon(Icons.arrow_right),
@@ -221,52 +317,12 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
                   color: endDateTime == null ? theme.disabledColor : null,
                 ),
               ]),
-              ViewSubtitleWidget(translator.statistics),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  KPIWidget(
-                      "${numberFormatter.format(meterAnalysisComputation
-                          .averageConsumption)} ${meterAnalysisComputation.meter
-                          .unit}/$frequencyUnitTranslation",
-                      iconData: Icons.shopping_cart,
-                      label: translator.averageConsumption),
-                  KPIWidget(
-                      "${currencyFormatter.format(
-                          meterAnalysisComputation.averageConsumption *
-                              meterAnalysisComputation.meter
-                                  .unitCost)} ${settings
-                          .currencyUnit}/$frequencyUnitTranslation",
-                      iconData: Icons.euro,
-                      label: translator.averageCost)
-                ],
-              ),
-              ViewSubtitleWidget(
-                translator.lastReading,
-                marginTop: defaultViewPadding,
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                _buildLastMeterReadingTrendKPI(
-                    meterAnalysisComputation.lastMeterReadingState,
-                    numberFormatter),
-                const SizedBox(
-                  width: defaultViewPadding,
-                ),
-                KPIWidget(
-                  "${meterAnalysisComputation.lastMeterReading != null
-                      ? daysSince(
-                      meterAnalysisComputation.lastMeterReading!.dateTime)
-                      : '-'} ${translator.days}",
-                  iconData: Icons.watch_later_outlined,
-                  label: translator.sinceLastReading,
-                ),
-              ]),
+              ...sections,
             ])));
   }
 
   Widget _buildLastMeterReadingTrendKPI(
-      MeterReadingState? lastMeterReadingState,
-      NumberFormat numberFormatter) {
+      MeterReadingState? lastMeterReadingState, NumberFormat numberFormatter) {
     final evolutionValue = lastMeterReadingState?.relativeEvolution();
     final translator = getTranslator(context);
     final label = translator.consumptionTrend;
@@ -279,28 +335,6 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
     } else {
       final trendFormat = NumberFormat("+ 0 %;- 0 %;0 %");
       var formattedValue = trendFormat.format(evolutionValue);
-
-
-      IconData iconData;
-      final isOutlier = lastMeterReadingState.isOutlier();
-      Color? color;
-      Color? backgroundColor;
-      if (isOutlier) {
-        iconData = Icons.warning;
-        color = Colors.red;
-        backgroundColor = Colors.red.shade100;
-        formattedValue += " ${translator.abnormal}";
-      } else if (evolutionValue.abs() < 0.05) {
-        iconData = Icons.trending_flat;
-      } else if (evolutionValue < 0) {
-        iconData = Icons.trending_down;
-        color = Colors.green;
-        backgroundColor = Colors.green.shade100;
-      } else {
-        iconData = Icons.trending_up;
-        color = Colors.deepOrange;
-        backgroundColor = Colors.deepOrange.shade100;
-      }
 
       // Tooltip
       const tooltipValueTextStyle = TextStyle(fontWeight: FontWeight.bold);
@@ -317,43 +351,53 @@ class _MeterAnalysisWidgetState extends State<MeterAnalysisWidget> {
             text: "\n",
             style: TextStyle(fontSize: 2),
           ),
-          TextSpan(
-              text: "\n${translator.expectedConsumption} : ",
-              children: [
-                TextSpan(
-                    text: "${numberFormatter.format(lastMeterReadingState
-                        .expectedConsumption)} ± ${numberFormatter.format(
-                        lastMeterReadingState
-                            .expectedTolerance)} ${lastMeterReadingState.meter
-                        .unit}/$translatedFrequency",
-                    style: tooltipValueTextStyle
-                ),
-              ]),
-          TextSpan(
-              text: '\n${translator.currentConsumption} : ',
-              children: [
-                TextSpan(
-                  text: "${numberFormatter.format(
-                      lastMeterReadingState
-                          .consumption)} ${lastMeterReadingState
-                      .meter.unit}/$translatedFrequency",
-                  style: tooltipValueTextStyle,
-                ),
-              ]
-          ),
-
+          TextSpan(text: "\n${translator.expectedConsumption} : ", children: [
+            TextSpan(
+                text:
+                    "${numberFormatter.format(lastMeterReadingState.expectedConsumption)} ± ${numberFormatter.format(lastMeterReadingState.expectedTolerance)} ${lastMeterReadingState.meter.unit}/$translatedFrequency",
+                style: tooltipValueTextStyle),
+          ]),
+          TextSpan(text: '\n${translator.currentConsumption} : ', children: [
+            TextSpan(
+              text:
+                  "${numberFormatter.format(lastMeterReadingState.consumption)} ${lastMeterReadingState.meter.unit}/$translatedFrequency",
+              style: tooltipValueTextStyle,
+            ),
+          ]),
         ],
       );
 
-      final kpiWidget = KPIWidget(
-        formattedValue,
-        iconData: iconData,
-        label: label,
-        iconColor: color,
-        textColor: color,
-        iconBackgroundColor: backgroundColor,
-        tooltipMessage: tooltipMessage,
-      );
+      final isOutlier = lastMeterReadingState.isOutlier();
+      final KPIWidget kpiWidget;
+      if (isOutlier) {
+        kpiWidget = KPIWidget.instantiateErrorKPI(
+          "$formattedValue ${translator.abnormal}",
+          label: label,
+          tooltipMessage: tooltipMessage,
+          iconData: Icons.warning,
+        );
+      } else if (evolutionValue.abs() < 0.05) {
+        kpiWidget = KPIWidget(
+          formattedValue,
+          label: label,
+          tooltipMessage: tooltipMessage,
+          iconData: Icons.trending_flat,
+        );
+      } else if (evolutionValue < 0) {
+        kpiWidget = KPIWidget.instantiateSuccessKPI(
+          formattedValue,
+          label: label,
+          tooltipMessage: tooltipMessage,
+          iconData: Icons.trending_down,
+        );
+      } else {
+        kpiWidget = KPIWidget.instantiateWarningKPI(
+          formattedValue,
+          label: label,
+          tooltipMessage: tooltipMessage,
+          iconData: Icons.trending_up,
+        );
+      }
 
       return kpiWidget;
     }

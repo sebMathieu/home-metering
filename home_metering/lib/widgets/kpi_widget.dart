@@ -11,6 +11,40 @@ class KPIWidget extends StatelessWidget {
 
   const KPIWidget(this.textValue, {this.iconData = Icons.insights, this.iconColor, this.label, this.textColor, this.iconBackgroundColor, this.tooltipMessage, super.key});
 
+  static instantiateErrorKPI(final String textValue, {final iconData = Icons.insights, final String? label, final TextSpan? tooltipMessage}) {
+    return KPIWidget(
+        textValue,
+        iconData: iconData,
+        label: label,
+        tooltipMessage: tooltipMessage,
+        iconColor: Colors.red,
+        iconBackgroundColor: Colors.red.shade100,
+        textColor: Colors.red,
+    );
+  }
+
+  static instantiateSuccessKPI(final String textValue, {final iconData = Icons.insights, final String? label, final TextSpan? tooltipMessage}) {
+    return KPIWidget(
+      textValue,
+      iconData: iconData,
+      label: label,
+      tooltipMessage: tooltipMessage,
+      iconColor: Colors.green,
+      iconBackgroundColor: Colors.green.shade100,
+    );
+  }
+
+  static instantiateWarningKPI(final String textValue, {final iconData = Icons.insights, final String? label, final TextSpan? tooltipMessage}) {
+    return KPIWidget(
+      textValue,
+      iconData: iconData,
+      label: label,
+      tooltipMessage: tooltipMessage,
+      iconColor: Colors.deepOrange,
+      iconBackgroundColor: Colors.deepOrange.shade100,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> rightSideWidgets = [];
