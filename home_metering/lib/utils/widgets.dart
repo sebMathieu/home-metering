@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter_gen/gen_l10n/translations.dart';
 import 'package:flutter/material.dart';
+import 'package:home_metering/translations/translations.dart';
 import 'package:home_metering/utils/time.dart';
 
 const defaultViewPadding = 18.0;

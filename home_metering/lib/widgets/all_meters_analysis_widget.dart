@@ -231,7 +231,7 @@ class _AllMetersAnalysisWidgetState extends State<AllMetersAnalysisWidget> {
               ViewSubtitleWidget(translator.statistics, marginTop: defaultMargin),
               Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                 KPIWidget(
-                  "${currencyFormat.format(allMetersAnalysisComputation.averageCost)} ${settings.currencyUnit}/${getFrequencyUnitTranslation(frequency, translator)}",
+                  "${allMetersAnalysisComputation.averageCost == null ? '-' : currencyFormat.format(allMetersAnalysisComputation.averageCost)} ${settings.currencyUnit}/${getFrequencyUnitTranslation(frequency, translator)}",
                   iconData: Icons.euro,
                   label: translator.averageCost,
                 ),

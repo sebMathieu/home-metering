@@ -50,3 +50,7 @@ Thumbs.db
 
 
 debug/
+
+home_metering/android/build/reports/
+
+home_metering/android/build/.last_build_id

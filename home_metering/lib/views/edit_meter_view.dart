@@ -86,7 +86,7 @@ class _EditMeterViewState extends State<EditMeterView> {
           ElevatedButton(
             child: Text(translator.confirm),
             onPressed: () {
-              setState(() => meter.color = pickerColor?.value);
+              setState(() => meter.color = pickerColor?.toARGB32());
               Navigator.of(context).pop();
             },
           ),
@@ -230,7 +230,7 @@ class _EditMeterViewState extends State<EditMeterView> {
                           onSaved: (value) =>
                           meter.monitoringIndexThreshold = num.tryParse(value ?? ''),
                           decoration: InputDecoration(
-                          labelText: "${translator.monitoringIndexThreshold} *",
+                          labelText: translator.monitoringIndexThreshold,
                   ))),
               ],
             ),

@@ -24,26 +24,31 @@ Future<void> initializeDatabase() async {
   _database = await openDatabase(
     join(databaseContainerFolder, 'home-metering.db'),
     version: 20250208,
-    onCreate: (db, version) async {
-      var batch = db.batch();
-      upgrade20230205(batch);
-      await batch.commit();
+    onCreate: (Database db, int version) async {
+      await playMigration(db, null);
     },
-    onUpgrade: (db, oldVersion, newVersion) async {
-      var batch = db.batch();
-
-      // Register useful migrations
-      if (oldVersion < 20230205) {
-        upgrade20230205(batch);
-      }
-      if (oldVersion < 20250208) {
-        upgrade20250208(batch);
-      }
-
-      // Execute the migrations
-      await batch.commit();
+    onUpgrade: (Database db, int oldVersion, int newVersion) async {
+      await playMigration(db, oldVersion);
     },
   );
+}
+
+Future<void> playMigration(Database db, int? oldVersion) async {
+  var batch = db.batch();
+  var isMigration = false;
+
+  // Register useful migrations
+  if (oldVersion == null || oldVersion < 20230205) {
+    upgrade20230205(batch);
+    isMigration = true;
+  }
+  if (oldVersion == null || oldVersion < 20250208) {
+    upgrade20250208(batch);
+    isMigration = true;
+  }
+
+  // Execute the migrations
+  if (isMigration) await batch.commit();
 }
 
 Database getDatabase() {

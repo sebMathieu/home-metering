@@ -1,5 +1,5 @@
+import 'package:home_metering/translations/translations.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/translations.dart';
 
 
 String? validateRequired(String? value, AppLocalizations translator) {
@@ -17,7 +17,7 @@ String? validateDynamicRequired(dynamic value, AppLocalizations translator) {
 }
 
 String? validateFloat(String? value, AppLocalizations translator) {
-  if (value == null) { return null; }
+  if (value == null || value.trim() == '') { return null; }
   else {
     final parsed = num.tryParse(value);
     if (parsed == null) {

@@ -144,6 +144,11 @@ List<String> getCSVStringFormats() {
   ];
 }
 
+String toSimplifiedString(String? s) {
+  if (s == null) return '';
+  return s.replaceAll(RegExp(r'[^A-Za-z0-9().,;?]'), ' ');
+}
+
 List<MeterReading> parseMeterReadingsFromCSVString(String rawCSV,
     {Iterable<Meter>? meters, Meter? preferredMeter}) {
 
@@ -152,7 +157,7 @@ List<MeterReading> parseMeterReadingsFromCSVString(String rawCSV,
   List<MeterReading> newMeterReadings = [];
   Map<String, Meter>? meterByName = meters == null
       ? null
-      : Map.fromEntries(meters.map((m) => MapEntry(m.name.toLowerCase(), m)));
+      : Map.fromEntries(meters.map((m) => MapEntry(toSimplifiedString(m.name.toLowerCase()), m)));
 
   // Convert to list
   const csvSettingsDetector = FirstOccurrenceSettingsDetector(eols: ['\r\n', '\n']);
@@ -181,14 +186,16 @@ List<MeterReading> parseMeterReadingsFromCSVString(String rawCSV,
 
     Meter? meter = preferredMeter;
     if (csvLine.length >= 4 && csvLine[3] != null && csvLine[3].trim() != "") {
-      final lowerMeterName = csvLine[3].trim().toLowerCase();
-      print("meter name \"$lowerMeterName\" from line $csvLine among ${meterByName?.keys} ?");
+      final lowerMeterName = toSimplifiedString(csvLine[3].trim().toLowerCase());
       if (preferredMeter != null && lowerMeterName == preferredMeter.name.toLowerCase()) {
       } // Already set to preferred meter
       else if (meterByName == null) {
         throw "Meters must be provided to parse multi-meters CSV from column 4.";
       } else {
         meter = meterByName[lowerMeterName];
+        if (meter == null) {
+          print("meter name \"$lowerMeterName\" not found from line $csvLine among ${meterByName.keys} ?");
+        }
       }
     }
 
@@ -241,10 +248,10 @@ class MeterReadingState {
       this.expectedTolerance);
 
   num? relativeEvolution() {
-    if (expectedConsumption == null || expectedConsumption!.abs() < 0.01) {
+    if (expectedConsumption == null || consumption == null || expectedConsumption!.abs() < 0.01) {
       return null;
     } else {
-      return (consumption! - expectedConsumption!) / expectedConsumption!;
+      return (consumption! - expectedConsumption!) / expectedConsumption!.abs();
     }
   }
 

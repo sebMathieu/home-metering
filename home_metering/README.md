@@ -24,6 +24,12 @@ The application name can be modified in `android/app/src/main/AndroidManifest.xm
 }
 ```
 
+## Upgrade flutter
+
+If everything seems lost, your project do not compile, 
+- use `flutter create .` to recreate the project, then
+- reset the icons `flutter pub run flutter_launcher_icons`
+- restore your sign-in config for android build (cf. https://docs.flutter.dev/deployment/android)
 
 ## Release
 
@@ -39,4 +45,4 @@ storeFile=C:\\programs\\android-keystore.jks
 flutter clean
 flutter build appbundle
 ```
-Upload the generated bundle as a *new realease* to [Google play console](https://play.google.com/console).
+Upload the generated bundle as a *new release* to [Google play console](https://play.google.com/console).
